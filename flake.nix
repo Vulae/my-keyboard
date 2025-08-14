@@ -1,5 +1,5 @@
 {
-  description = "Nix development shell";
+  description = "Nix flake for my-keyboard";
 
   inputs = {
     nixpkgs.url      = "github:NixOS/nixpkgs/nixos-unstable";
@@ -32,6 +32,10 @@
           buildInputs = [ ];
           nativeBuildInputs = [ ];
           cargoHash = "sha256-72a7Yt3p24SxwA63rwQgAhuVn5HCJYUesBblpkiYT+w=";
+          meta = {
+            description = "Keyboard lighting effects";
+            mainProgram = "my-keyboard";
+          };
         };
       }
     );
