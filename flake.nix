@@ -25,6 +25,14 @@
 
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
         };
+
+        packages.default = pkgs.rustPlatform.buildRustPackage {
+          name = "my-keyboard";
+          src = ./.;
+          buildInputs = [ ];
+          nativeBuildInputs = [ ];
+          cargoHash = "sha256-72a7Yt3p24SxwA63rwQgAhuVn5HCJYUesBblpkiYT+w=";
+        };
       }
     );
 }
