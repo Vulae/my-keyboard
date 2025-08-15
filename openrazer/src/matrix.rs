@@ -7,6 +7,13 @@ pub struct DeviceMatrixEffectManager {
     path: PathBuf,
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Default)]
+pub enum EffectWaveDirection {
+    #[default]
+    Left,
+    Right,
+}
+
 impl DeviceMatrixEffectManager {
     pub(crate) fn new(path: PathBuf) -> Self {
         Self { path }
@@ -45,6 +52,23 @@ impl DeviceMatrixEffectManager {
         self.write_to("matrix_effect_static", &color.to_quantized())
     }
 
+    /// Matrix may have transition time.
+    pub fn effect_spectrum(&self) -> Result<(), OpenRazerError> {
+        self.write_to("matrix_effect_spectrum", &[0])
+    }
+
+    /// Matrix may have transition time.
+    pub fn effect_wave(&self, direction: EffectWaveDirection) -> Result<(), OpenRazerError> {
+        self.write_to(
+            "matrix_effect_spectrum",
+            &[match direction {
+                EffectWaveDirection::Left => 2,
+                EffectWaveDirection::Right => 1,
+            }],
+        )
+    }
+
+    /// Display a custom matrix frame.
     pub fn effect_custom(&mut self) -> Result<DeviceMatrixCustom<'_>, OpenRazerError> {
         DeviceMatrixCustom::new(self)
     }
@@ -126,7 +150,7 @@ impl DeviceMatrixCustom<'_> {
         //
         // NOTE:
         //     I have tried to send less data by only sending the colors that have had a visually
-        //     perceptive change, but atleast for my keyboard that start_col must always be 0.
+        //     perceptive change, but atleast for my keyboard the start_col must always be 0.
 
         let mut data = Vec::new();
 

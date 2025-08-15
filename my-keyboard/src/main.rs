@@ -1,48 +1,54 @@
+use std::sync::{atomic::AtomicBool, Arc};
+
 use anyhow::Error;
-use effects::Effect;
+use cycler::EffectCycler;
 use openrazer::query_razer_devices;
 
+pub mod cycler;
 mod effects;
 
-const TARGET_FPS: std::time::Duration = std::time::Duration::from_millis(1000 / 15);
+const TARGET_FPS: u64 = 15;
+const TARGET_UPDATE_RATE: std::time::Duration = std::time::Duration::from_millis(1000 / TARGET_FPS);
+
+const EFFECT_CHANGE_TIME: std::time::Duration = std::time::Duration::from_secs(60 * 5);
 
 pub fn main() -> Result<(), Error> {
+    env_logger::init();
+
     let mut device = query_razer_devices()?
         .into_iter()
         .next()
         .expect("No razer device found.");
 
     let matrix_manager = device.matrix_manager();
-    let mut matrix_frame = matrix_manager.effect_custom()?;
+
+    let mut effect_cycler = EffectCycler::new(matrix_manager.effect_custom()?);
+    effects::add_effects_to_cycler(&mut effect_cycler);
 
     let mut cycle_next_effect_time = std::time::Instant::now();
-    let mut effect_index = 0;
-    let mut effect: Box<dyn Effect> = Box::new(effects::EffectFrozen::attach(&mut matrix_frame)?);
+
+    let term = Arc::new(AtomicBool::new(false));
+    let _ = signal_hook::flag::register(signal_hook::consts::SIGINT, Arc::clone(&term));
+    let _ = signal_hook::flag::register(signal_hook::consts::SIGTERM, Arc::clone(&term));
 
     loop {
-        let next_frame_time = std::time::Instant::now() + TARGET_FPS;
+        let next_frame_time = std::time::Instant::now() + TARGET_UPDATE_RATE;
 
-        if std::time::Instant::now() >= cycle_next_effect_time {
-            cycle_next_effect_time =
-                std::time::Instant::now() + std::time::Duration::from_secs_f64(60.0 * 10.0);
-
-            let last_effect_index = effect_index;
-            while effect_index == last_effect_index {
-                effect_index = rand::random_range(0..=3);
-            }
-            // effect_index = 2;
-
-            drop(effect);
-            effect = match effect_index {
-                0 => Box::new(effects::EffectRainbow1::attach(&mut matrix_frame)?),
-                1 => Box::new(effects::EffectRainbow2::attach(&mut matrix_frame)?),
-                2 => Box::new(effects::EffectRainbow3::attach(&mut matrix_frame)?),
-                3 => Box::new(effects::EffectPride::attach(&mut matrix_frame)?),
-                _ => unreachable!(),
-            };
+        if term.load(std::sync::atomic::Ordering::Relaxed) {
+            break;
         }
 
-        effect.update()?;
+        if std::time::Instant::now() >= cycle_next_effect_time {
+            cycle_next_effect_time = std::time::Instant::now() + EFFECT_CHANGE_TIME;
+
+            effect_cycler.next_effect();
+            log::info!(
+                "Playing effect: {:?}",
+                effect_cycler.current_effect_identifier(),
+            );
+        }
+
+        effect_cycler.update()?;
 
         let mut waited = false;
         while std::time::Instant::now() < next_frame_time {
@@ -50,7 +56,12 @@ pub fn main() -> Result<(), Error> {
             waited = true;
         }
         if !waited {
-            println!("WARNING: Failed to update in time!");
+            log::warn!("Failed to update effect in time");
         }
     }
+
+    log::info!("Exiting my-keyboard, setting keyboard matrix to spectrum");
+    matrix_manager.effect_spectrum()?;
+
+    Ok(())
 }

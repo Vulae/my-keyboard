@@ -57,28 +57,33 @@ fn get_color(percent: f32) -> Color {
     )
 }
 
-pub struct EffectPride<'a, 'b> {
-    matrix: &'b mut DeviceMatrixCustom<'a>,
+#[derive(Debug)]
+pub struct EffectPride {
     start: std::time::Instant,
 }
 
-impl<'a, 'b> Effect<'a, 'b> for EffectPride<'a, 'b> {
-    fn attach(matrix: &'b mut DeviceMatrixCustom<'a>) -> Result<Self, Error> {
-        Ok(Self {
-            matrix,
+impl EffectPride {
+    pub fn new() -> Self {
+        Self {
             start: std::time::Instant::now(),
-        })
+        }
+    }
+}
+
+impl Effect for EffectPride {
+    fn identifier(&self) -> &str {
+        "effect_pride"
     }
 
-    fn update(&mut self) -> Result<(), Error> {
+    fn update<'a, 'b>(&mut self, matrix: &'b mut DeviceMatrixCustom<'a>) -> Result<(), Error> {
         let time = std::time::Instant::now().duration_since(self.start);
 
-        self.matrix.iter_mut().for_each(|(x, _y, color)| {
+        matrix.iter_mut().for_each(|(x, _y, color)| {
             let pos = (x as f32 / MATRIX_WIDTH as f32) * SCALE;
             *color = get_color(pos + time.as_secs_f32() * 0.02);
         });
 
-        self.matrix.send_update()?;
+        matrix.send_update()?;
         Ok(())
     }
 }

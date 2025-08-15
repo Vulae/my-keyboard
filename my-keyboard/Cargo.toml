@@ -7,3 +7,6 @@ edition.workspace = true
 openrazer = { path = "../openrazer/" }
 anyhow = "1.0.98"
 rand = "0.9.1"
+signal-hook = "0.3.18"
+log = "0.4.27"
+env_logger = "0.11.8"

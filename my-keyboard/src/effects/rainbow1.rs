@@ -3,28 +3,33 @@ use openrazer::{Color, DeviceMatrixCustom};
 
 use super::Effect;
 
-pub struct EffectRainbow1<'a, 'b> {
-    matrix: &'b mut DeviceMatrixCustom<'a>,
+#[derive(Debug)]
+pub struct EffectRainbow1 {
     start: std::time::Instant,
 }
 
-impl<'a, 'b> Effect<'a, 'b> for EffectRainbow1<'a, 'b> {
-    fn attach(matrix: &'b mut DeviceMatrixCustom<'a>) -> Result<Self, Error> {
-        Ok(Self {
-            matrix,
+impl EffectRainbow1 {
+    pub fn new() -> Self {
+        Self {
             start: std::time::Instant::now(),
-        })
+        }
+    }
+}
+
+impl Effect for EffectRainbow1 {
+    fn identifier(&self) -> &str {
+        "effect_rainbow_1"
     }
 
-    fn update(&mut self) -> Result<(), Error> {
+    fn update<'a, 'b>(&mut self, matrix: &'b mut DeviceMatrixCustom<'a>) -> Result<(), Error> {
         let time = std::time::Instant::now().duration_since(self.start);
 
         let hue_rot = time.as_secs_f32() * 100.0;
-        self.matrix.iter_mut().for_each(|(_x, _y, color)| {
+        matrix.iter_mut().for_each(|(_x, _y, color)| {
             *color = Color::from_hsl(hue_rot, 1.0, 0.5);
         });
 
-        self.matrix.send_update()?;
+        matrix.send_update()?;
         Ok(())
     }
 }
