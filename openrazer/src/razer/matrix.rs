@@ -1,4 +1,4 @@
-use std::{fs::File, io::Write, path::PathBuf};
+use std::{collections::HashMap, fs::File, io::Write, path::PathBuf};
 
 use crate::{Color, OpenRazerError};
 
@@ -170,5 +170,32 @@ impl DeviceMatrixCustom<'_> {
         }
 
         Ok(())
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct MatrixMapper {
+    mapping: HashMap<evdev::KeyCode, (usize, usize)>,
+}
+
+impl MatrixMapper {
+    pub fn add_mapping(&mut self, key: evdev::KeyCode, x: usize, y: usize) {
+        if x >= MATRIX_WIDTH || y >= MATRIX_HEIGHT {
+            log::warn!("Cannot add mapping is outside of matrix: {key:?} at {x},{y}");
+            return;
+        }
+        self.mapping.insert(key, (x, y));
+    }
+
+    pub fn add_mappings<T>(&mut self, iter: T)
+    where
+        T: IntoIterator<Item = (evdev::KeyCode, (usize, usize))>,
+    {
+        iter.into_iter()
+            .for_each(|(key, (x, y))| self.add_mapping(key, x, y));
+    }
+
+    pub fn map(&self, key: evdev::KeyCode) -> Option<(usize, usize)> {
+        self.mapping.get(&key).cloned()
     }
 }

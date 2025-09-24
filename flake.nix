@@ -32,7 +32,7 @@
           buildInputs = [ ];
           nativeBuildInputs = [ ];
           # cargoHash = pkgs.lib.fakeHash;
-          cargoHash = "sha256-OlES0ZjhzIZHgJT/eYTvB441ctrkf1/iVlc+4JfRaV4=";
+          cargoHash = "sha256-ZGHVIP9Eoa5qaP0RTJ+hLNpmL6AGyn0XU56kQT9RjNc=";
           meta = {
             description = "Keyboard lighting effects";
             mainProgram = "my-keyboard";

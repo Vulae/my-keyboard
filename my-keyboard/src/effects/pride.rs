@@ -3,7 +3,9 @@ use std::sync::LazyLock;
 use anyhow::Error;
 use openrazer::{Color, DeviceMatrixCustom, MATRIX_WIDTH};
 
-use super::Effect;
+use crate::util::{lerp, simple_ease};
+
+use super::{Effect, MatrixInput};
 
 const SCALE: f32 = 0.15;
 
@@ -35,18 +37,6 @@ fn get_color(percent: f32) -> Color {
     let color = COLORS[index];
     let next_color = COLORS[next_index];
 
-    fn lerp(v0: f32, v1: f32, t: f32) -> f32 {
-        (1.0 - t) * v0 + t * v1
-    }
-
-    fn simple_ease(x: f32) -> f32 {
-        if x > 0.5 {
-            1.0 - (2.0 * (1.0 - x)).powi(4) / 2.0
-        } else {
-            (2.0 * x).powi(4) / 2.0
-        }
-    }
-
     let interpolation = percent % (1.0 / COLORS.len() as f32) * COLORS.len() as f32;
     let interpolation = simple_ease(interpolation);
 
@@ -75,7 +65,11 @@ impl Effect for EffectPride {
         "effect_pride"
     }
 
-    fn update<'a, 'b>(&mut self, matrix: &'b mut DeviceMatrixCustom<'a>) -> Result<(), Error> {
+    fn update<'a, 'b>(
+        &mut self,
+        matrix: &'b mut DeviceMatrixCustom<'a>,
+        _inputs: &[MatrixInput],
+    ) -> Result<(), Error> {
         let time = std::time::Instant::now().duration_since(self.start);
 
         matrix.iter_mut().for_each(|(x, _y, color)| {

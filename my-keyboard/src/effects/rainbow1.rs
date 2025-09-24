@@ -1,7 +1,7 @@
 use anyhow::Error;
 use openrazer::{Color, DeviceMatrixCustom};
 
-use super::Effect;
+use super::{Effect, MatrixInput};
 
 #[derive(Debug)]
 pub struct EffectRainbow1 {
@@ -21,7 +21,11 @@ impl Effect for EffectRainbow1 {
         "effect_rainbow_1"
     }
 
-    fn update<'a, 'b>(&mut self, matrix: &'b mut DeviceMatrixCustom<'a>) -> Result<(), Error> {
+    fn update<'a, 'b>(
+        &mut self,
+        matrix: &'b mut DeviceMatrixCustom<'a>,
+        _inputs: &[MatrixInput],
+    ) -> Result<(), Error> {
         let time = std::time::Instant::now().duration_since(self.start);
 
         let hue_rot = time.as_secs_f32() * 100.0;

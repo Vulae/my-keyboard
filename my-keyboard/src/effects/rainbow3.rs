@@ -1,7 +1,7 @@
 use anyhow::Error;
 use openrazer::{Color, DeviceMatrixCustom, MATRIX_HEIGHT, MATRIX_WIDTH};
 
-use super::Effect;
+use super::{Effect, MatrixInput};
 
 #[derive(Debug)]
 struct Metaball {
@@ -72,7 +72,11 @@ impl Effect for EffectRainbow3 {
         "effect_rainbow_3"
     }
 
-    fn update<'a, 'b>(&mut self, matrix: &'b mut DeviceMatrixCustom<'a>) -> Result<(), Error> {
+    fn update<'a, 'b>(
+        &mut self,
+        matrix: &'b mut DeviceMatrixCustom<'a>,
+        _inputs: &[MatrixInput],
+    ) -> Result<(), Error> {
         self.update_balls();
 
         let time = std::time::Instant::now().duration_since(self.start);

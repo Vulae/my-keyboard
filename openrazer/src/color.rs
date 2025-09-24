@@ -45,11 +45,6 @@ impl Color {
         Self::new(r as f32 / 255.0, g as f32 / 255.0, b as f32 / 255.0)
     }
 
-    pub const fn is_black(&self) -> bool {
-        let [r, g, b] = self.to_quantized();
-        (r == 0) && (g == 0) && (b == 0)
-    }
-
     pub fn to_hex(&self) -> String {
         let [r, g, b] = self.to_quantized();
         format!("#{:02X}{:02X}{:02X}", r, g, b)
@@ -74,21 +69,33 @@ impl Color {
         }
     }
 
-    pub fn difference(&self, other: &Color) -> f32 {
-        Lab::from_srgb(self).difference(&Lab::from_srgb(other))
+    pub fn saturate(self) -> Self {
+        Self::new(
+            self.r.clamp(0.0, 1.0),
+            self.g.clamp(0.0, 1.0),
+            self.b.clamp(0.0, 1.0),
+        )
+    }
+
+    pub fn difference(self, other: Color) -> f32 {
+        Lab::from_srgb(self).difference(Lab::from_srgb(other))
     }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
-struct Lab {
-    l: f32,
-    a: f32,
-    b: f32,
+pub struct Lab {
+    pub l: f32,
+    pub a: f32,
+    pub b: f32,
 }
 
 impl Lab {
+    pub const fn new(l: f32, a: f32, b: f32) -> Self {
+        Self { l, a, b }
+    }
+
     // https://stackoverflow.com/questions/9018016#answer-26998429
-    fn from_srgb(srgb: &Color) -> Self {
+    pub fn from_srgb(srgb: Color) -> Self {
         const EPS: f32 = 216.0 / 24389.0;
         const K: f32 = 24389.0 / 27.0;
         const XR: f32 = 0.964221;
@@ -141,7 +148,7 @@ impl Lab {
         }
     }
 
-    fn difference(&self, other: &Lab) -> f32 {
+    pub fn difference(self, other: Lab) -> f32 {
         ((self.l - other.l).powi(2) + (self.a - other.a).powi(2) + (self.b - other.b).powi(2))
             .sqrt()
     }

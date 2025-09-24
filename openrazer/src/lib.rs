@@ -1,17 +1,15 @@
-use thiserror::Error;
-
 mod color;
-mod device;
-mod matrix;
+mod evdev_device_nonblocking;
+mod query;
+mod razer;
 
 pub use color::*;
-pub use device::*;
-pub use matrix::*;
+pub use evdev_device_nonblocking::*;
+pub use query::*;
+pub use razer::*;
 
-#[derive(Debug, Error)]
-pub enum OpenRazerError {
-    #[error(transparent)]
-    IoError(#[from] std::io::Error),
-    #[error("Failed to parse matrix effect brightness")]
-    MatrixEffectBrightnessParseError,
-}
+pub use evdev::{
+    AbsoluteAxisEvent, EventSummary, EventType, FFStatusEvent, InputEvent, KeyCode, KeyEvent,
+    LedEvent, MiscEvent, OtherEvent, PowerEvent, RelativeAxisEvent, RepeatEvent, SoundEvent,
+    SwitchEvent, SynchronizationEvent, UInputEvent,
+};
