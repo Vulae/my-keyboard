@@ -1,6 +1,5 @@
-// FIXME: When dropped it's blocking until a new event is sent.
-
 use std::{
+    os::fd::{AsRawFd, FromRawFd, RawFd},
     sync::{
         atomic::{AtomicBool, Ordering},
         mpsc::{Receiver, TryRecvError},
@@ -12,6 +11,7 @@ use std::{
 /// [`evdev::Device::set_nonblocking`] doesn't work, so this is just a workaround for that.
 #[derive(Debug)]
 pub struct EvdevDeviceNonblocking {
+    raw_fd: RawFd,
     rx: Receiver<evdev::InputEvent>,
     running: Arc<AtomicBool>,
     handle: Option<JoinHandle<()>>,
@@ -19,6 +19,7 @@ pub struct EvdevDeviceNonblocking {
 
 impl EvdevDeviceNonblocking {
     pub fn new(mut device: evdev::Device) -> Self {
+        let raw_fd = device.as_raw_fd();
         let (tx, rx) = std::sync::mpsc::channel();
         let running = Arc::new(AtomicBool::new(true));
         let handle = std::thread::spawn({
@@ -29,9 +30,12 @@ impl EvdevDeviceNonblocking {
                         tx.send(event).unwrap()
                     }
                 }
+                // The inner file descriptor is dropped already
+                std::mem::forget(device);
             }
         });
         Self {
+            raw_fd,
             rx,
             running,
             handle: Some(handle),
@@ -53,9 +57,22 @@ impl EvdevDeviceNonblocking {
 
 impl Drop for EvdevDeviceNonblocking {
     fn drop(&mut self) {
+        log::debug!("Dropping EvdevDeviceNonblocking");
+        let file = unsafe { std::fs::File::from_raw_fd(self.raw_fd) };
+        std::mem::drop(file);
         self.running.store(false, Ordering::Relaxed);
         if let Some(handle) = self.handle.take() {
-            handle.join().unwrap();
+            let start = std::time::Instant::now();
+            while !handle.is_finished() {
+                std::thread::sleep(std::time::Duration::from_nanos(10));
+            }
+            let time = std::time::Instant::now().duration_since(start);
+            if time >= std::time::Duration::from_millis(50) {
+                log::warn!(
+                    "Dropping EvdevDeviceNonblocking took {}ms",
+                    time.as_millis(),
+                )
+            }
         }
         log::debug!("Successfully dropped EvdevDeviceNonblocking");
     }
