@@ -1,85 +1,81 @@
-use anyhow::{anyhow, Error};
+use anyhow::Error;
 use openrazer::DeviceMatrixCustom;
 
 use crate::effects::{Effect, MatrixInput};
 
-#[derive(Debug)]
 pub struct EffectCycler<'a> {
     matrix: DeviceMatrixCustom<'a>,
-    effects: Vec<Box<dyn Effect>>,
-    effect_index: Option<usize>,
+    effect: Option<Box<dyn Effect>>,
+    effect_creators: Vec<Box<dyn Fn() -> Box<dyn Effect>>>,
+}
+
+impl<'a> std::fmt::Debug for EffectCycler<'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("EffectCycler")
+            .field("matrix", &self.matrix)
+            .field("effect", &self.effect)
+            // .field("effect_creators", &self.effect_creators)
+            .finish()
+    }
 }
 
 impl<'a> EffectCycler<'a> {
     pub fn new(matrix: DeviceMatrixCustom<'a>) -> Self {
         Self {
             matrix,
-            effects: Vec::new(),
-            effect_index: None,
+            effect: None,
+            effect_creators: Vec::new(),
         }
     }
 
-    pub fn add_effect(&mut self, effect: impl Effect + 'static) {
-        if self
-            .effects
-            .iter()
-            .any(|e| e.identifier() == effect.identifier())
-        {
-            return;
-        }
-        self.effects.push(Box::new(effect));
+    pub fn add_effect<F>(&mut self, creator: F)
+    where
+        F: Fn() -> Box<dyn Effect> + 'static,
+    {
+        self.effect_creators.push(Box::new(creator));
     }
 
     pub fn update(&mut self, events: &[MatrixInput]) -> Result<(), Error> {
-        let Some(effect_index) = self.effect_index else {
-            return Err(anyhow!("Invalid selected effect"));
-        };
-        let effect = self
-            .effects
-            .get_mut(effect_index)
-            .expect("Invalid effect index");
-        effect.update(&mut self.matrix, events)?;
+        if let Some(effect) = self.effect.as_mut() {
+            effect.update(&mut self.matrix, events)?;
+        }
         Ok(())
     }
 
     pub fn next_effect(&mut self) {
-        assert!(!self.effects.is_empty());
+        assert!(!self.effect_creators.is_empty());
+        let ident = self
+            .effect
+            .as_ref()
+            .map(|effect| effect.identifier().to_owned());
         loop {
-            let effect_index = Some(rand::random_range(0..self.effects.len()));
-            if effect_index != self.effect_index || self.effects.len() == 1 {
-                self.effect_index = effect_index;
+            let creator = &self.effect_creators[rand::random_range(0..self.effect_creators.len())];
+            self.effect = Some(creator());
+            if self.effect_creators.len() == 1
+                || self.effect.as_ref().map(|effect| effect.identifier())
+                    != ident.as_ref().map(|s| s.as_str())
+            {
                 break;
             }
         }
     }
 
     pub fn set_no_effect(&mut self) {
-        self.effect_index = None;
+        self.effect = None;
     }
 
     pub fn set_effect(&mut self, effect_identifier: &str) -> bool {
-        let Some(effect_index) = self
-            .effects
-            .iter()
-            .enumerate()
-            .find_map(|(i, effect)| (effect.identifier() == effect_identifier).then_some(i))
-        else {
-            return false;
-        };
-        self.effect_index = Some(effect_index);
-        true
-    }
-
-    pub fn iter_effect_identifiers(&self) -> impl Iterator<Item = &str> {
-        self.effects.iter().map(|effect| effect.identifier())
+        for creator in self.effect_creators.iter() {
+            let effect = creator();
+            if effect.identifier() == effect_identifier {
+                self.effect = Some(effect);
+                return true;
+            }
+        }
+        false
     }
 
     pub fn current_effect_identifier(&self) -> Option<&str> {
-        Some(
-            self.effects
-                .get(self.effect_index?)
-                .expect("Invalid effect index")
-                .identifier(),
-        )
+        self.effect.as_ref().map(|effect| effect.identifier())
     }
 }

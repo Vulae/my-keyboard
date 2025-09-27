@@ -47,7 +47,7 @@ pub trait Effect: Debug {
     }
 }
 
-// mod aurora;
+mod line;
 mod pride;
 mod rainbow1;
 mod rainbow2;
@@ -55,7 +55,7 @@ mod rainbow3;
 mod random;
 mod ripple;
 
-// pub use aurora::EffectAurora;
+pub use line::EffectLine;
 pub use pride::EffectPride;
 pub use rainbow1::EffectRainbow1;
 pub use rainbow2::EffectRainbow2;
@@ -64,11 +64,11 @@ pub use random::EffectRandom;
 pub use ripple::EffectRipple;
 
 pub fn add_effects_to_cycler(effect_cycler: &mut EffectCycler<'_>) {
-    effect_cycler.add_effect(EffectRainbow1::new());
-    effect_cycler.add_effect(EffectRainbow2::new());
-    effect_cycler.add_effect(EffectRainbow3::new());
-    effect_cycler.add_effect(EffectPride::new());
-    effect_cycler.add_effect(EffectRandom::new());
-    effect_cycler.add_effect(EffectRipple::new());
-    // effect_cycler.add_effect(EffectAurora::new());
+    effect_cycler.add_effect(|| Box::new(EffectRainbow1::new()));
+    effect_cycler.add_effect(|| Box::new(EffectRainbow2::new()));
+    effect_cycler.add_effect(|| Box::new(EffectRainbow3::new()));
+    effect_cycler.add_effect(|| Box::new(EffectPride::new()));
+    effect_cycler.add_effect(|| Box::new(EffectRandom::new()));
+    effect_cycler.add_effect(|| Box::new(EffectRipple::new()));
+    effect_cycler.add_effect(|| Box::new(EffectLine::new()));
 }

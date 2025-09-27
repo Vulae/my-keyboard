@@ -147,6 +147,17 @@ pub fn main() -> Result<(), Error> {
         (KeyCode::KEY_FN, (12, 5)),
         (KeyCode::KEY_COMPOSE, (13, 5)),
         (KeyCode::KEY_RIGHTCTRL, (14, 5)),
+        // Some extra keys (Media keys that are emulated by my keyboard using fn+f*
+        (KeyCode::KEY_MUTE, (3, 0)),
+        (KeyCode::KEY_VOLUMEDOWN, (4, 0)),
+        (KeyCode::KEY_VOLUMEUP, (5, 0)),
+        (KeyCode::KEY_PREVIOUSSONG, (7, 0)),
+        (KeyCode::KEY_PLAYPAUSE, (8, 0)),
+        (KeyCode::KEY_NEXTSONG, (9, 0)),
+        (KeyCode(685), (11, 0)), // No clue what this key does. It toggles a light on my keyboard??
+        (KeyCode(684), (12, 0)), // Toggle game mode
+        (KeyCode(683), (13, 0)), // Keyboard lighting brightness down
+        (KeyCode(682), (14, 0)), // Keyboard lighting brightness up
     ]);
 
     let mut evdev_device = device.get_evdev_device()?;

@@ -1,3 +1,5 @@
+use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+
 /// Each component is stored as f32 in a normalized range
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct Color {
@@ -79,6 +81,70 @@ impl Color {
 
     pub fn difference(self, other: Color) -> f32 {
         Lab::from_srgb(self).difference(Lab::from_srgb(other))
+    }
+}
+
+impl Add<Color> for Color {
+    type Output = Color;
+
+    fn add(self, rhs: Color) -> Self::Output {
+        Self::new(self.r + rhs.r, self.g + rhs.g, self.b + rhs.b)
+    }
+}
+
+impl AddAssign<Color> for Color {
+    fn add_assign(&mut self, rhs: Color) {
+        self.r += rhs.r;
+        self.g += rhs.g;
+        self.b += rhs.b;
+    }
+}
+
+impl Sub<Color> for Color {
+    type Output = Color;
+
+    fn sub(self, rhs: Color) -> Self::Output {
+        Self::new(self.r - rhs.r, self.g - rhs.g, self.b - rhs.b)
+    }
+}
+
+impl SubAssign<Color> for Color {
+    fn sub_assign(&mut self, rhs: Color) {
+        self.r -= rhs.r;
+        self.g -= rhs.g;
+        self.b -= rhs.b;
+    }
+}
+
+impl Mul<f32> for Color {
+    type Output = Color;
+
+    fn mul(self, rhs: f32) -> Self::Output {
+        Self::new(self.r * rhs, self.g * rhs, self.b * rhs)
+    }
+}
+
+impl MulAssign<f32> for Color {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.r *= rhs;
+        self.g *= rhs;
+        self.b *= rhs;
+    }
+}
+
+impl Div<f32> for Color {
+    type Output = Color;
+
+    fn div(self, rhs: f32) -> Self::Output {
+        Self::new(self.r / rhs, self.g / rhs, self.b / rhs)
+    }
+}
+
+impl DivAssign<f32> for Color {
+    fn div_assign(&mut self, rhs: f32) {
+        self.r /= rhs;
+        self.g /= rhs;
+        self.b /= rhs;
     }
 }
 

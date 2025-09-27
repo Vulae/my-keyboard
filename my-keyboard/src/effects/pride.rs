@@ -40,11 +40,7 @@ fn get_color(percent: f32) -> Color {
     let interpolation = percent % (1.0 / COLORS.len() as f32) * COLORS.len() as f32;
     let interpolation = simple_ease(interpolation);
 
-    Color::new(
-        lerp(color.r, next_color.r, interpolation),
-        lerp(color.g, next_color.g, interpolation),
-        lerp(color.b, next_color.b, interpolation),
-    )
+    lerp(color, next_color, interpolation)
 }
 
 #[derive(Debug)]
