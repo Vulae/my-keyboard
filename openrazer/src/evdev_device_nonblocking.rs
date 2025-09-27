@@ -1,3 +1,5 @@
+// FIXME: This still sometimes blocks??? I don't even know why anymore. . .
+
 use std::{
     os::fd::{AsRawFd, FromRawFd, RawFd},
     sync::{
