@@ -16,6 +16,8 @@ const EFFECT_CHANGE_TIME: std::time::Duration = std::time::Duration::from_secs(6
 
 const FORCED_EFFECT: Option<&str> = None;
 
+const NEXT_EFFECT_KEY: Option<KeyCode> = Some(KeyCode::KEY_PAUSE);
+
 pub fn main() -> Result<(), Error> {
     env_logger::init();
 
@@ -210,6 +212,9 @@ pub fn main() -> Result<(), Error> {
                         }
                     }
                     EventSummary::Key(_, key, 1) => {
+                        if NEXT_EFFECT_KEY == Some(key) {
+                            cycle_next_effect_time = std::time::Instant::now();
+                        }
                         if let Some((x, y)) = matrix_mapper.map(key) {
                             matrix_events.push(MatrixInput::Pressed { x, y });
                         } else {
