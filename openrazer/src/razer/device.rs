@@ -30,7 +30,7 @@ impl RazerDevice {
     }
 
     pub fn get_evdev_device(&self) -> Result<Option<EvdevDeviceNonblocking>, OpenRazerError> {
-        // FIXME: This is def not a good way to get what one is actually keyboard inputs.
+        // FIXME: This is definitely not a good way to get what one is actually keyboard inputs.
         for device in self.query_devices.iter() {
             if device.handlers.contains(&"kbd".to_owned())
                 && !device.handlers.contains(&"leds".to_owned())
@@ -42,9 +42,8 @@ impl RazerDevice {
                 {
                     let mut path = PathBuf::from("/dev/input/");
                     path.push(event);
-                    let file = std::fs::File::open(&path)?;
                     log::info!("Reading keyboard events from {path:?}");
-                    return Ok(Some(EvdevDeviceNonblocking::from_fd(file)?));
+                    return Ok(Some(EvdevDeviceNonblocking::new(&path)?));
                 }
             }
         }
