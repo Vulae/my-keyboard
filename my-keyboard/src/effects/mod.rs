@@ -48,6 +48,7 @@ pub trait Effect: Debug {
 }
 
 mod line;
+mod particles;
 mod pride;
 mod rainbow1;
 mod rainbow2;
@@ -56,6 +57,7 @@ mod random;
 mod ripple;
 
 pub use line::EffectLine;
+pub use particles::EffectParticles;
 pub use pride::EffectPride;
 pub use rainbow1::EffectRainbow1;
 pub use rainbow2::EffectRainbow2;
@@ -71,4 +73,5 @@ pub fn add_effects_to_cycler(effect_cycler: &mut EffectCycler<'_>) {
     effect_cycler.add_effect(|| Box::new(EffectRandom::new()));
     effect_cycler.add_effect(|| Box::new(EffectRipple::new()));
     effect_cycler.add_effect(|| Box::new(EffectLine::new()));
+    effect_cycler.add_effect(|| Box::new(EffectParticles::new()));
 }

@@ -3,6 +3,9 @@ use std::{
     sync::mpsc::{Receiver, TryRecvError},
 };
 
+// FIXME: This definitely doesn't drop correctly.
+// The thread keeps running for the whole program, and when the program exits this goes as well.
+
 /// [`evdev::Device::set_nonblocking`] doesn't work, so this is just a workaround for that.
 #[derive(Debug)]
 pub struct EvdevDeviceNonblocking {
