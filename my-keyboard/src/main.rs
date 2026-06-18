@@ -233,12 +233,7 @@ pub fn main() -> Result<(), Error> {
 
         effect_cycler.update(&matrix_events)?;
 
-        let mut waited = false;
-        while std::time::Instant::now() < next_frame_time {
-            std::thread::sleep(std::time::Duration::from_nanos(100));
-            waited = true;
-        }
-        if !waited {
+        if util::sleep_until(next_frame_time) == std::time::Duration::ZERO {
             log::warn!("Failed to update effect in time");
         }
     }

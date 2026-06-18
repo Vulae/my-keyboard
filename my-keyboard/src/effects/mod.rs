@@ -47,6 +47,7 @@ pub trait Effect: Debug {
     }
 }
 
+mod aurora;
 mod line;
 mod particles;
 mod pride;
@@ -56,6 +57,7 @@ mod rainbow3;
 mod random;
 mod ripple;
 
+pub use aurora::EffectAurora;
 pub use line::EffectLine;
 pub use particles::EffectParticles;
 pub use pride::EffectPride;
@@ -74,4 +76,6 @@ pub fn add_effects_to_cycler(effect_cycler: &mut EffectCycler<'_>) {
     effect_cycler.add_effect(|| Box::new(EffectRipple::new()));
     effect_cycler.add_effect(|| Box::new(EffectLine::new()));
     effect_cycler.add_effect(|| Box::new(EffectParticles::new()));
+    //
+    effect_cycler.add_effect(|| Box::new(EffectAurora::new()));
 }
