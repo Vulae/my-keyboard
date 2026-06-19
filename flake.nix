@@ -52,6 +52,12 @@
         }).buildRustPackage {
           pname = "my-keyboard";
           version = "0.1.0";
+
+          meta = {
+            description = "Keyboard lighting effects";
+            mainProgram = "my-keyboard";
+          };
+
           src = ./.;
           cargoLock = {
             lockFile = ./Cargo.lock;
