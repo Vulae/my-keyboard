@@ -85,7 +85,7 @@ impl EffectFinder {
                 .collect();
 
             if entries.is_empty() {
-                return Err(anyhow!("Directory has no valid lua files"));
+                return Err(anyhow!("Directory has no valid lua files {:#?}", self.path));
             }
             if entries.len() == 1 {
                 return Ok(entries[0].clone());

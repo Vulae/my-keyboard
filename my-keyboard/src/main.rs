@@ -91,11 +91,6 @@ fn main() -> Result<()> {
             break;
         }
 
-        if std::time::Instant::now() >= cycle_next_effect_time {
-            cycle_next_effect_time = std::time::Instant::now() + cycle_time;
-            lua_runner = KeyboardLuaRunner::new_with_code_path(finder.next_effect()?)?;
-        }
-
         lua_runner.step_start()?;
 
         if let Some(evdev_device) = evdev_device.as_mut() {
@@ -125,7 +120,8 @@ fn main() -> Result<()> {
 
         lua_runner.step_end()?;
 
-        if finder.dir_changed()? {
+        if std::time::Instant::now() >= cycle_next_effect_time || finder.dir_changed()? {
+            cycle_next_effect_time = std::time::Instant::now() + cycle_time;
             lua_runner = KeyboardLuaRunner::new_with_code_path(finder.next_effect()?)?;
         }
 

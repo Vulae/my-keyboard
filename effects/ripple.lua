@@ -14,9 +14,16 @@ Keyboard:on_matrix_before_frame(function()
     for i = #ripples, 1, -1 do
         local r = ripples[i]
         local dt = curtime - r.t
-        if dt > 3 then
+        if dt > 2.5 then
             table.remove(ripples, i)
         end
+    end
+    if #ripples == 0 then
+        table.insert(ripples, {
+            x = math.random(0, Keyboard.WIDTH - 1),
+            y = math.random(0, Keyboard.HEIGHT - 1),
+            t = curtime,
+        })
     end
 end)
 

@@ -67,8 +67,10 @@ function RGB.from_hsl(h, s, l) end
 ---@field HEIGHT number # Matrix height
 Keyboard = {}
 ---@param callbackfn fun(type: "press" | "release" | "repeat", x: number, y, number)
+---Position is 0-based
 function Keyboard:on_recieve_key(callbackfn) end
 ---@param callbackfn fun() # Gets called before each frame
 function Keyboard:on_matrix_before_frame(callbackfn) end
 ---@param callbackfn fun(x: number, y: number): RGB | nil # Gets called for every matrix cell every frame.
+---Position is 0-based
 function Keyboard:on_matrix_update(callbackfn) end

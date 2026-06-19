@@ -53,19 +53,31 @@
           pname = "my-keyboard";
           version = "0.1.0";
           src = ./.;
-          nativeBuildInputs = (with pkgs; [
-            pkg-config
-            lua5_5
-          ]);
-          buildInputs = (with pkgs; [
-            lua5_5
-          ]);
           cargoLock = {
             lockFile = ./Cargo.lock;
             outputHashes = {
               "mlua-0.12.0-rc.2" = "sha256-Bhwnel4CvTmwZWR8S5jvPpR371yEkKMi6fb/qR7syMc=";
             };
           };
+
+          nativeBuildInputs = (with pkgs; [
+            pkg-config
+            lua5_5
+          ]);
+
+          buildInputs = (with pkgs; [
+            lua5_5
+          ]);
+
+          LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [
+            pkgs.lua5_5
+          ]);
+
+          postFixup = ''
+            patchelf --add-rpath "${pkgs.lib.makeLibraryPath (with pkgs; [
+              lua5_5
+            ])}" $out/bin/my-keyboard
+          '';
         };
       }
     );
