@@ -15,7 +15,7 @@ mod matrix_mapper;
 mod util;
 
 const DEFAULT_FPS: u64 = 20;
-const DEFAULT_EFFECT_CYCLE_TIME: std::time::Duration = std::time::Duration::from_secs(60 * 5);
+const DEFAULT_EFFECT_CYCLE_TIME: u64 = 60 * 5;
 
 const NEXT_EFFECT_KEY: Option<KeyCode> = Some(KeyCode::KEY_PAUSE);
 
@@ -33,8 +33,8 @@ struct Cli {
     no_key_events: bool,
     #[arg(short, long, default_value_t = DEFAULT_FPS)]
     fps: u64,
-    #[arg(short, long)]
-    cycle_time_secs: Option<u64>,
+    #[arg(short, long, default_value_t = DEFAULT_EFFECT_CYCLE_TIME)]
+    cycle_time_secs: u64,
 }
 
 fn main() -> Result<()> {
@@ -50,10 +50,7 @@ fn main() -> Result<()> {
 
     let update_rate = std::time::Duration::from_secs_f64(1.0 / (cli.fps as f64));
 
-    let cycle_time = cli
-        .cycle_time_secs
-        .map(std::time::Duration::from_secs)
-        .unwrap_or(DEFAULT_EFFECT_CYCLE_TIME);
+    let cycle_time = std::time::Duration::from_secs(cli.cycle_time_secs);
 
     let device = query_razer_devices()?
         .into_iter()
