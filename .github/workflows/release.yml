@@ -17,6 +17,11 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v4
 
+      - name: Install Lua
+        uses: leafo/gh-actions-lua@v13
+        with:
+          luaVersion: "5.5"
+
       - name: Setup Rust
         run: rustup toolchain install 1.96.0 --profile minimal --target x86_64-unknown-linux-gnu --no-self-update
 
