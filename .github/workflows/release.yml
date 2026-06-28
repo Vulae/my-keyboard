@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Rust
+        run: rustup toolchain install 1.96.0 --profile minimal --target x86_64-unknown-linux-gnu --no-self-update
+
+      - name: Build project
+        run: |
+          cargo build --release --target x86_64-unknown-linux-gnu
+          cp ./target/x86_64-unknown-linux-gnu/release/my-keyboard ./my-keyboard_x86_64-linux
+
+      - name: Package effects
+        run: |
+          cp ./my-keyboard/src/lib.d.lua ./effects/lib.d.lua
+          cp ./.stylua.toml ./effects/.stylua.toml
+          zip -r effects.zip ./effects/
+
+      - name: Upload assets
+        uses: softprops/action-gh-release@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          fail_on_unmatched_files: true
+          files: |
+            ./my-keyboard_x86_64-linux
+            ./effects.zip
