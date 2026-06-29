@@ -3,6 +3,8 @@
 
 Custom lighting effects for my Razer keyboard.
 
+![my-keyboard lighting effects](./keyboard.gif)
+
 If you have a Razer keyboard with lighting & [OpenRazer](https://github.com/openrazer/openrazer) it should just work.
 
 User groups needed: `openrazer` (Required) & `input` (Optional, for key lighting feedback)
