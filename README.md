@@ -45,6 +45,15 @@ end)
 
 See full definitions: [lib.d.lua](./my-keyboard/src/lib.d.lua)
 
+# [TODO](#todo)
+
+* Lighting visualizer in terminal
+* Razer chroma REST api ([link](https://doc.wyvrn.com/docs/chroma-sdk/chroma-rgb-rest-api/))
+* Razer chroma websocket api ([link](https://doc.wyvrn.com/docs/chroma-sdk/chroma-rgb-websocket/))
+* Razer C++ SDK ([link](https://doc.wyvrn.com/docs/chroma-sdk/chroma-cpp-sdk/))
+    * Either create our own DLL to load. ([Probably impossible](https://github.com/WyvrnOfficial/CSDK_ChromaSDK_GameSample/blob/UNICODE_WITHOUT_DLL/Razer/VerifyLibrarySignature.cpp))
+    * Or use official Razer [DLL](https://www.razer.com/chroma) and reverse engineer the communication between the SDK and the Razer drivers.
+
 # [License](#license)
 
 `MIT-0` / `MIT No Attribution`
