@@ -20,6 +20,7 @@ Options:
   -n, --no-key-events                      If to not listen for keyboard events
   -f, --fps <FPS>                          [default: 20]
   -c, --cycle-time-secs <CYCLE_TIME_SECS>  [default: 300]
+  -v, --visualize                          Visualize the keyboard matrix in the terminal
   -h, --help                               Print help
   -V, --version                            Print version
 
