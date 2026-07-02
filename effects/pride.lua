@@ -60,8 +60,8 @@ local COLORS = {
     RGB.from_hex("#1594F6"),
 }
 
-local SCALE = 0.15
-local SPEED = 0.02
+local SCALE = 0.25
+local SPEED = 0.01
 
 ---@param x number
 ---@return number

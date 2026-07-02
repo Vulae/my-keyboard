@@ -1,5 +1,5 @@
 use std::{
-    path::Path,
+    path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
 
@@ -190,6 +190,12 @@ struct Keyboard {
     on_matrix_update_callbackfn: Option<Box<dyn Fn(usize, usize) -> mlua::Result<Option<RGB>>>>,
 }
 
+impl std::fmt::Debug for Keyboard {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Keyboard").finish()
+    }
+}
+
 #[derive(UserData, Default)]
 struct KeyboardWrapper {
     #[lua(skip)]
@@ -240,8 +246,10 @@ impl KeyboardLuaRunnerKeyEventType {
     }
 }
 
+#[derive(Debug)]
 pub struct KeyboardLuaRunner {
     start: std::time::Instant,
+    code_path: PathBuf,
     lua: Lua,
     keyboard: Arc<Mutex<Keyboard>>,
     pub err: Option<mlua::Error>,
@@ -250,6 +258,10 @@ pub struct KeyboardLuaRunner {
 impl KeyboardLuaRunner {
     // 10MiB
     const MEMORY_LIMIT: usize = 1024 * 1024 * 10;
+
+    pub fn code_path(&self) -> &PathBuf {
+        &self.code_path
+    }
 
     pub fn new_with_code_path<P: AsRef<Path>>(path: P) -> Result<KeyboardLuaRunner> {
         let lua = Lua::new_with(
@@ -275,7 +287,7 @@ impl KeyboardLuaRunner {
 
         let code_path = path.as_ref().to_path_buf();
         log::info!("KeyboardLuaRunner lua script: {code_path:#?}");
-        let err = match lua.load(code_path).exec() {
+        let err = match lua.load(code_path.clone()).exec() {
             Ok(_) => None,
             Err(err) => {
                 log::error!("{err}");
@@ -285,6 +297,7 @@ impl KeyboardLuaRunner {
 
         Ok(KeyboardLuaRunner {
             start,
+            code_path,
             lua,
             keyboard,
             err,
