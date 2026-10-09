@@ -82,6 +82,14 @@ local PALETTES = {
         RGB.from_hex("#01D66A"),
         RGB.from_hex("#1594F6"),
     },
+    -- Polyamorous
+    {
+        RGB.from_hex("#FFFFFF"),
+        RGB.from_hex("#FBBF00"),
+        RGB.from_hex("#009FE3"),
+        RGB.from_hex("#E50052"),
+        RGB.from_hex("#340D46"),
+    },
 }
 
 local palette = PALETTES[math.random(#PALETTES)]
